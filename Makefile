@@ -78,6 +78,7 @@ generate-protoc: .bin-deps .generate .copy-swagger
 
 .PHONY: generate
 generate:
+	rm -rf ./vendor
 	buf mod update
 	buf generate
 	make .copy-swagger
@@ -86,6 +87,13 @@ generate:
 build:
 	go build -o ./bin/crnt-auth-service ./cmd/crnt-auth-service/main.go
 
-.PHONY: run
-run:
+.PHONY: vendor
+vendor:
+	go mod vendor
+
+.PHONY: .run
+.run:
 	go run ./cmd/crnt-auth-service/main.go
+
+.PHONY: run
+run: vendor build .run
