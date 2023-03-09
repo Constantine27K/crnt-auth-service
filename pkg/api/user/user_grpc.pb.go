@@ -25,7 +25,7 @@ type UserRegistryClient interface {
 	CreateUser(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserCreateResponse, error)
 	UpdateUser(ctx context.Context, in *UserUpdateRequest, opts ...grpc.CallOption) (*UserUpdateResponse, error)
 	GetUsers(ctx context.Context, in *UserGetRequest, opts ...grpc.CallOption) (*UserGetResponse, error)
-	GetByIDUser(ctx context.Context, in *UserGetByIDRequest, opts ...grpc.CallOption) (*UserGetByIDResponse, error)
+	GetUserByID(ctx context.Context, in *UserGetByIDRequest, opts ...grpc.CallOption) (*UserGetByIDResponse, error)
 }
 
 type userRegistryClient struct {
@@ -63,9 +63,9 @@ func (c *userRegistryClient) GetUsers(ctx context.Context, in *UserGetRequest, o
 	return out, nil
 }
 
-func (c *userRegistryClient) GetByIDUser(ctx context.Context, in *UserGetByIDRequest, opts ...grpc.CallOption) (*UserGetByIDResponse, error) {
+func (c *userRegistryClient) GetUserByID(ctx context.Context, in *UserGetByIDRequest, opts ...grpc.CallOption) (*UserGetByIDResponse, error) {
 	out := new(UserGetByIDResponse)
-	err := c.cc.Invoke(ctx, "/github.constantine27k.crnt_auth_service.api.user.UserRegistry/GetByIDUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/github.constantine27k.crnt_auth_service.api.user.UserRegistry/GetUserByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ type UserRegistryServer interface {
 	CreateUser(context.Context, *UserCreateRequest) (*UserCreateResponse, error)
 	UpdateUser(context.Context, *UserUpdateRequest) (*UserUpdateResponse, error)
 	GetUsers(context.Context, *UserGetRequest) (*UserGetResponse, error)
-	GetByIDUser(context.Context, *UserGetByIDRequest) (*UserGetByIDResponse, error)
+	GetUserByID(context.Context, *UserGetByIDRequest) (*UserGetByIDResponse, error)
 }
 
 // UnimplementedUserRegistryServer should be embedded to have forward compatible implementations.
@@ -95,8 +95,8 @@ func (UnimplementedUserRegistryServer) UpdateUser(context.Context, *UserUpdateRe
 func (UnimplementedUserRegistryServer) GetUsers(context.Context, *UserGetRequest) (*UserGetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
-func (UnimplementedUserRegistryServer) GetByIDUser(context.Context, *UserGetByIDRequest) (*UserGetByIDResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetByIDUser not implemented")
+func (UnimplementedUserRegistryServer) GetUserByID(context.Context, *UserGetByIDRequest) (*UserGetByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserByID not implemented")
 }
 
 // UnsafeUserRegistryServer may be embedded to opt out of forward compatibility for this service.
@@ -164,20 +164,20 @@ func _UserRegistry_GetUsers_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserRegistry_GetByIDUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserRegistry_GetUserByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserGetByIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserRegistryServer).GetByIDUser(ctx, in)
+		return srv.(UserRegistryServer).GetUserByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/github.constantine27k.crnt_auth_service.api.user.UserRegistry/GetByIDUser",
+		FullMethod: "/github.constantine27k.crnt_auth_service.api.user.UserRegistry/GetUserByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserRegistryServer).GetByIDUser(ctx, req.(*UserGetByIDRequest))
+		return srv.(UserRegistryServer).GetUserByID(ctx, req.(*UserGetByIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -202,8 +202,8 @@ var UserRegistry_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserRegistry_GetUsers_Handler,
 		},
 		{
-			MethodName: "GetByIDUser",
-			Handler:    _UserRegistry_GetByIDUser_Handler,
+			MethodName: "GetUserByID",
+			Handler:    _UserRegistry_GetUserByID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
