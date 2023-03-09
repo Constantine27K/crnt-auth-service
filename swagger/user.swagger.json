@@ -53,7 +53,7 @@
     },
     "/v1/user/{id}": {
       "get": {
-        "operationId": "UserRegistry_GetByIDUser",
+        "operationId": "UserRegistry_GetUserByID",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -154,7 +154,37 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "names",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "lastNames",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
             "name": "displayNames",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "emails",
             "in": "query",
             "required": false,
             "type": "array",
@@ -209,6 +239,23 @@
         }
       }
     },
+    "userContacts": {
+      "type": "object",
+      "properties": {
+        "phoneNumber": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "telegramUrl": {
+          "type": "string"
+        },
+        "discordUrl": {
+          "type": "string"
+        }
+      }
+    },
     "userUser": {
       "type": "object",
       "properties": {
@@ -233,20 +280,25 @@
           "type": "string",
           "format": "date-time"
         },
+        "firedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "aboutInfo": {
           "type": "string"
         },
         "avatarUrl": {
           "type": "string"
         },
-        "phoneNumber": {
-          "type": "string"
+        "contacts": {
+          "$ref": "#/definitions/userContacts"
         },
-        "email": {
-          "type": "string"
+        "salary": {
+          "type": "number",
+          "format": "double"
         },
-        "telegramUrl": {
-          "type": "string"
+        "isPieceWage": {
+          "type": "boolean"
         }
       }
     },

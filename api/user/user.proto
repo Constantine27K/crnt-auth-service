@@ -11,86 +11,97 @@ import "api/auth/auth.proto";
 option go_package = "github.com/Constantine27K/crnt-auth-service/pkg/api/user;user";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  info: {
-    title: "User";
-    version: "0.1";
-  };
+	info: {
+		title: "User";
+		version: "0.1";
+	};
 
-  schemes: HTTP;
-  consumes: "application/json";
-  produces: "application/json";
+	schemes: HTTP;
+	consumes: "application/json";
+	produces: "application/json";
 };
 
 service UserRegistry {
-  rpc CreateUser (UserCreateRequest) returns (UserCreateResponse) {
-    option (google.api.http) = {
-      post: "/v1/user"
-      body: "*"
-    };
-  };
-  rpc UpdateUser (UserUpdateRequest) returns (UserUpdateResponse) {
-    option (google.api.http) = {
-      put: "/v1/user/{id}"
-      body: "*"
-    };
-  };
-  rpc GetUsers (UserGetRequest) returns (UserGetResponse) {
-    option (google.api.http) = {
-      get: "/v1/users"
-    };
-  };
-  rpc GetByIDUser (UserGetByIDRequest) returns (UserGetByIDResponse) {
-    option (google.api.http) = {
-      get: "/v1/user/{id}"
-    };
-  };
+	rpc CreateUser (UserCreateRequest) returns (UserCreateResponse) {
+		option (google.api.http) = {
+			post: "/v1/user"
+			body: "*"
+		};
+	};
+	rpc UpdateUser (UserUpdateRequest) returns (UserUpdateResponse) {
+		option (google.api.http) = {
+			put: "/v1/user/{id}"
+			body: "*"
+		};
+	};
+	rpc GetUsers (UserGetRequest) returns (UserGetResponse) {
+		option (google.api.http) = {
+			get: "/v1/users"
+		};
+	};
+	rpc GetUserByID (UserGetByIDRequest) returns (UserGetByIDResponse) {
+		option (google.api.http) = {
+			get: "/v1/user/{id}"
+		};
+	};
 }
 
 message User {
-  int64 id = 1;
-  string name = 2;
-  string last_name = 3;
-  string display_name = 4;
-  google.protobuf.Timestamp birthday = 5;
-  google.protobuf.Timestamp employed_at = 6;
-  string about_info = 7;
-  string avatar_url = 8;
-  string phone_number = 9;
-  string email = 10;
-  string telegram_url = 11;
+	int64 id = 1;
+	string name = 2;
+	string last_name = 3;
+	string display_name = 4;
+	google.protobuf.Timestamp birthday = 5;
+	google.protobuf.Timestamp employed_at = 6;
+	google.protobuf.Timestamp fired_at = 7;
+	string about_info = 8;
+	string avatar_url = 9;
+	Contacts contacts = 10;
+	double salary = 12;
+	bool is_piece_wage = 13;
+}
+
+message Contacts {
+	string phone_number = 1;
+	string email = 2;
+	string telegram_url = 3;
+	string discord_url = 4;
 }
 
 message UserCreateRequest {
-  User user = 1;
-  auth.Secret secret = 2;
+	User user = 1;
+	auth.Secret secret = 2;
 }
 
 message UserCreateResponse {
-  int64  id = 1;
+	int64  id = 1;
 }
 
 message UserUpdateRequest {
-  int64 id = 1;
-  User user = 2;
+	int64 id = 1;
+	User user = 2;
 }
 
 message UserUpdateResponse {
-  int64 id = 1;
+	int64 id = 1;
 }
 
 message UserGetRequest {
-  repeated int64 ids = 1;
-  repeated string display_names = 2;
+	repeated int64 ids = 1;
+	repeated string names = 2;
+	repeated string last_names = 3;
+	repeated string display_names = 4;
+	repeated string emails = 5;
 }
 
 message UserGetResponse {
-  repeated User users = 1;
+	repeated User users = 1;
 }
 
 message UserGetByIDRequest {
-  int64 id = 1;
+	int64 id = 1;
 }
 
 message UserGetByIDResponse {
-  User user = 1;
+	User user = 1;
 }
