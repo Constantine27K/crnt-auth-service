@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/users/models"
 	sq "github.com/Masterminds/squirrel"
+	"github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UsersGateway interface {
@@ -88,6 +91,12 @@ func (g *gateway) Add(user *models.UserRow, secretID int64) (int64, error) {
 	var id int64
 	err = g.db.QueryRow(query, args...).Scan(&id)
 	if err != nil {
+		pqErr, ok := err.(*pq.Error)
+		if ok {
+			if len(pqErr.Constraint) > 0 {
+				return 0, status.Error(codes.InvalidArgument, "display_name already exists")
+			}
+		}
 		log.Error("Gateway.Add scan error",
 			zap.Any("user", user),
 			zap.Error(err),

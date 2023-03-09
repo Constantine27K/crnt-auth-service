@@ -8,34 +8,36 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 option go_package = "github.com/Constantine27K/crnt-auth-service/pkg/api/auth;auth";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  info: {
-    title: "Auth";
-    version: "0.1";
-  };
+	info: {
+		title: "Auth";
+		version: "0.1";
+	};
 
-  schemes: HTTP;
-  consumes: "application/json";
-  produces: "application/json";
+	schemes: HTTP;
+	consumes: "application/json";
+	produces: "application/json";
 };
 
 service Auth {
-  rpc Login (LoginRequest) returns (LoginResponse) {
-    option (google.api.http) = {
-      post: "/v1/login"
-      body: "*"
-    };
-  };
+	rpc Login (LoginRequest) returns (LoginResponse) {
+		option (google.api.http) = {
+			post: "/v1/login"
+			body: "*"
+		};
+	};
 }
 
 message Secret {
-  string login = 1;
-  string password = 2;
+	string login = 1;
+	string password = 2;
+	string role = 3;
 }
 
 message LoginRequest {
-  Secret secret = 1;
+	// role is not obligatory
+	Secret secret = 1;
 }
 
 message LoginResponse {
-
+	string access_token = 1;
 }

@@ -10,11 +10,14 @@ import (
 
 	authService "github.com/Constantine27K/crnt-auth-service/internal/app/crnt-auth-service/auth"
 	userService "github.com/Constantine27K/crnt-auth-service/internal/app/crnt-auth-service/user"
+	"github.com/Constantine27K/crnt-auth-service/internal/pkg/authorization"
 	secretsGateway "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/secrets/gateway"
 	secretsStorage "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/secrets/storage"
 	usersGateway "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/users/gateway"
 	usersStorage "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/users/storage"
 	"github.com/Constantine27K/crnt-auth-service/internal/pkg/infrastructure/postgres"
+	"github.com/Constantine27K/crnt-auth-service/internal/pkg/token"
+	"github.com/Constantine27K/crnt-auth-service/internal/pkg/validation"
 	"github.com/Constantine27K/crnt-auth-service/pkg/api/auth"
 	"github.com/Constantine27K/crnt-auth-service/pkg/api/user"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -52,26 +55,6 @@ func setLogger() {
 	log.SetLevel(log.Level(logLevel))
 }
 
-func unaryInterceptor(
-	ctx context.Context,
-	req interface{},
-	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler,
-) (resp interface{}, err error) {
-	log.Printf("unary interceptor ------> %s", info.FullMethod)
-	return handler(ctx, req)
-}
-
-func streamInterceptor(
-	srv interface{},
-	ss grpc.ServerStream,
-	info *grpc.StreamServerInfo,
-	handler grpc.StreamHandler,
-) error {
-	log.Printf("stream interceptor ------> %s", info.FullMethod)
-	return handler(srv, ss)
-}
-
 func createGrpcServer() {
 	port := os.Getenv("GRPC_PORT")
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
@@ -81,10 +64,7 @@ func createGrpcServer() {
 		)
 	}
 
-	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(unaryInterceptor),
-		grpc.StreamInterceptor(streamInterceptor),
-	)
+	grpcServer := grpc.NewServer()
 
 	db, err := postgres.NewPostgres(postgres.Options{
 		Host:     os.Getenv("POSTGRES_HOST"),
@@ -103,8 +83,16 @@ func createGrpcServer() {
 	secretGw := secretsGateway.NewSecretsGateway(db)
 	secretStorage := secretsStorage.NewSecretStorage(secretGw)
 
-	user.RegisterUserRegistryServer(grpcServer, userService.NewService(userStorage, secretStorage))
-	auth.RegisterAuthServer(grpcServer, authService.NewService())
+	tokenMaker, err := token.NewMaker(os.Getenv("TOKEN_SYMMETRIC_KEY"))
+	if err != nil {
+		log.Fatalf("failed to create token maker: %v", err)
+	}
+
+	validator := validation.NewValidator()
+	authorizer := authorization.NewAuthorizer(tokenMaker)
+
+	user.RegisterUserRegistryServer(grpcServer, userService.NewService(userStorage, secretStorage, validator, authorizer))
+	auth.RegisterAuthServer(grpcServer, authService.NewService(secretStorage, tokenMaker))
 	log.Infof("grpc service started on port %s", port)
 
 	err = grpcServer.Serve(lis)

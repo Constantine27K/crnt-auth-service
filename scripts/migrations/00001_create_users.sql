@@ -17,8 +17,14 @@ create table if not exists users
     secrets_id    bigserial not null
 );
 -- +goose StatementEnd
+-- +goose StatementBegin
+create unique index unique_display_name on users (display_name);
+-- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 drop table if exists users;
+-- +goose StatementEnd
+-- +goose StatementBegin
+drop index if exists unique_display_name;
 -- +goose StatementEnd

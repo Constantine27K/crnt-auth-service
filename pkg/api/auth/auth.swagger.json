@@ -57,12 +57,18 @@
       "type": "object",
       "properties": {
         "secret": {
-          "$ref": "#/definitions/authSecret"
+          "$ref": "#/definitions/authSecret",
+          "title": "role is not obligatory"
         }
       }
     },
     "authLoginResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        }
+      }
     },
     "authSecret": {
       "type": "object",
@@ -71,6 +77,9 @@
           "type": "string"
         },
         "password": {
+          "type": "string"
+        },
+        "role": {
           "type": "string"
         }
       }
