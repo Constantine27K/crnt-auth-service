@@ -10,7 +10,7 @@ import (
 )
 
 type Maker interface {
-	CreateToken(username, role string, duration time.Duration) (string, error)
+	CreateToken(username, role, team string, duration time.Duration) (string, error)
 	VerifyToken(token string) (*Payload, error)
 }
 
@@ -43,8 +43,8 @@ func NewDefaultMaker() (Maker, error) {
 	}, nil
 }
 
-func (m *maker) CreateToken(username, role string, duration time.Duration) (string, error) {
-	payload, err := NewPayload(username, role, duration)
+func (m *maker) CreateToken(username, role, team string, duration time.Duration) (string, error) {
+	payload, err := NewPayload(username, role, team, duration)
 	if err != nil {
 		return "", err
 	}

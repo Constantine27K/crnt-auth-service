@@ -11,6 +11,7 @@ type UsersFilter struct {
 	LastNames    []string
 	DisplayNames []string
 	Emails       []string
+	Teams        []string
 }
 
 func NewUsersFilter(req *desc.UserGetRequest) *UsersFilter {
@@ -20,6 +21,7 @@ func NewUsersFilter(req *desc.UserGetRequest) *UsersFilter {
 		LastNames:    req.GetLastNames(),
 		DisplayNames: req.GetDisplayNames(),
 		Emails:       req.GetEmails(),
+		Teams:        req.GetTeams(),
 	}
 }
 
@@ -51,6 +53,12 @@ func (f *UsersFilter) Apply(query sq.SelectBuilder) sq.SelectBuilder {
 	if len(f.Emails) > 0 {
 		query = query.Where(sq.Eq{
 			"email": f.Emails,
+		})
+	}
+
+	if len(f.Teams) > 0 {
+		query = query.Where(sq.Eq{
+			"team": f.Teams,
 		})
 	}
 

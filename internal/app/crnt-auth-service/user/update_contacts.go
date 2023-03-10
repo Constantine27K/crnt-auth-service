@@ -2,8 +2,6 @@ package user
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 
 	desc "github.com/Constantine27K/crnt-auth-service/pkg/api/user"
 	log "github.com/sirupsen/logrus"
@@ -12,7 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (i *Implementation) UpdateUser(ctx context.Context, req *desc.UserUpdateRequest) (*desc.UserUpdateResponse, error) {
+func (i *Implementation) UpdateUserContacts(ctx context.Context, req *desc.UserContactsUpdateRequest) (*desc.UserContactsUpdateResponse, error) {
 	payload, err := i.authorizer.AuthorizeUser(ctx)
 	if err != nil {
 		log.Error("unauthorized user",
@@ -23,13 +21,8 @@ func (i *Implementation) UpdateUser(ctx context.Context, req *desc.UserUpdateReq
 
 	user, err := i.userStorage.GetByID(req.GetId())
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			log.Error("no such user",
-				zap.Int64("id", req.GetId()),
-			)
-			return nil, status.Error(codes.InvalidArgument, "no such user")
-		}
-		log.Error("cannot get user by display name",
+		log.Error("cannot get user by id",
+			zap.Int64("id", req.GetId()),
 			zap.Error(err),
 		)
 		return nil, err
@@ -39,7 +32,7 @@ func (i *Implementation) UpdateUser(ctx context.Context, req *desc.UserUpdateReq
 		return nil, status.Errorf(codes.PermissionDenied, "you can edit only your user")
 	}
 
-	id, err := i.userStorage.Update(req.GetId(), req.GetUser())
+	id, err := i.userStorage.UpdateContacts(req.GetId(), req.GetContacts())
 	if err != nil {
 		log.Error("cannot update user",
 			zap.Int64("id", req.GetId()),
@@ -48,5 +41,5 @@ func (i *Implementation) UpdateUser(ctx context.Context, req *desc.UserUpdateReq
 		return nil, err
 	}
 
-	return &desc.UserUpdateResponse{Id: id}, nil
+	return &desc.UserContactsUpdateResponse{Id: id}, nil
 }

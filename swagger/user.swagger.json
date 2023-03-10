@@ -124,6 +124,80 @@
         ]
       }
     },
+    "/v1/user/{id}/contacts": {
+      "put": {
+        "operationId": "UserRegistry_UpdateUserContacts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userUserContactsUpdateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "contacts": {
+                  "$ref": "#/definitions/userContacts"
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "UserRegistry"
+        ]
+      }
+    },
+    "/v1/user/{login}": {
+      "get": {
+        "operationId": "UserRegistry_GetUserByLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userUserGetByLoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "login",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserRegistry"
+        ]
+      }
+    },
     "/v1/users": {
       "get": {
         "operationId": "UserRegistry_GetUsers",
@@ -185,6 +259,16 @@
           },
           {
             "name": "emails",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "teams",
             "in": "query",
             "required": false,
             "type": "array",
@@ -302,6 +386,18 @@
         },
         "isPieceWage": {
           "type": "boolean"
+        },
+        "team": {
+          "type": "string"
+        }
+      }
+    },
+    "userUserContactsUpdateResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
@@ -326,6 +422,14 @@
       }
     },
     "userUserGetByIDResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/userUser"
+        }
+      }
+    },
+    "userUserGetByLoginResponse": {
       "type": "object",
       "properties": {
         "user": {
