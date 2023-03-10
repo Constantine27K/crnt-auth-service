@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/users/gateway"
 	"github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/users/models"
 	desc "github.com/Constantine27K/crnt-auth-service/pkg/api/user"
@@ -11,7 +12,9 @@ type UserStorage interface {
 	Add(user *desc.User, secretID int64) (int64, error)
 	Get(filter *models.UsersFilter) ([]*desc.User, error)
 	GetByID(id int64) (*desc.User, error)
+	GetByLogin(login string) (*desc.User, error)
 	Update(id int64, user *desc.User) (int64, error)
+	UpdateContacts(id int64, contacts *desc.Contacts) (int64, error)
 }
 
 type storage struct {
@@ -36,6 +39,7 @@ func (s *storage) Add(user *desc.User, secretID int64) (int64, error) {
 		AvatarUrl:   user.GetAvatarUrl(),
 		Salary:      user.GetSalary(),
 		IsPieceWage: user.GetIsPieceWage(),
+		Team:        user.GetTeam(),
 	}
 
 	contacts := user.GetContacts()
@@ -76,6 +80,7 @@ func (s *storage) Get(filter *models.UsersFilter) ([]*desc.User, error) {
 			},
 			Salary:      row.Salary,
 			IsPieceWage: row.IsPieceWage,
+			Team:        row.Team,
 		})
 	}
 
@@ -106,6 +111,35 @@ func (s *storage) GetByID(id int64) (*desc.User, error) {
 		},
 		Salary:      row.Salary,
 		IsPieceWage: row.IsPieceWage,
+		Team:        row.Team,
+	}, nil
+}
+
+func (s *storage) GetByLogin(login string) (*desc.User, error) {
+	row, err := s.gw.GetByLogin(login)
+	if err != nil {
+		return nil, err
+	}
+
+	return &desc.User{
+		Id:          row.ID,
+		Name:        row.Name,
+		LastName:    row.LastName,
+		DisplayName: row.DisplayName,
+		Birthday:    timestamppb.New(row.Birthday),
+		EmployedAt:  timestamppb.New(row.EmployedAt),
+		FiredAt:     timestamppb.New(row.FiredAt),
+		AboutInfo:   row.AboutInfo,
+		AvatarUrl:   row.AvatarUrl,
+		Contacts: &desc.Contacts{
+			PhoneNumber: row.PhoneNumber,
+			Email:       row.Email,
+			TelegramUrl: row.TelegramUrl,
+			DiscordUrl:  row.DiscordUrl,
+		},
+		Salary:      row.Salary,
+		IsPieceWage: row.IsPieceWage,
+		Team:        row.Team,
 	}, nil
 }
 
@@ -122,6 +156,7 @@ func (s *storage) Update(id int64, user *desc.User) (int64, error) {
 		AvatarUrl:   user.GetAvatarUrl(),
 		Salary:      user.GetSalary(),
 		IsPieceWage: user.GetIsPieceWage(),
+		Team:        user.GetTeam(),
 	}
 
 	contacts := user.GetContacts()
@@ -133,4 +168,21 @@ func (s *storage) Update(id int64, user *desc.User) (int64, error) {
 	}
 
 	return s.gw.Update(row)
+}
+
+func (s *storage) UpdateContacts(id int64, contacts *desc.Contacts) (int64, error) {
+	if contacts == nil {
+		return 0, fmt.Errorf("empty contacts")
+	}
+
+	row := &models.UserRow{
+		ID: id,
+	}
+
+	row.PhoneNumber = contacts.GetPhoneNumber()
+	row.Email = contacts.GetEmail()
+	row.TelegramUrl = contacts.GetTelegramUrl()
+	row.DiscordUrl = contacts.GetDiscordUrl()
+
+	return s.gw.UpdateContacts(row)
 }

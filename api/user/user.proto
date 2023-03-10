@@ -51,6 +51,12 @@ service UserRegistry {
 			body: "*"
 		};
 	};
+	rpc UpdateUserContacts (UserContactsUpdateRequest) returns (UserContactsUpdateResponse) {
+		option (google.api.http) = {
+			put: "/v1/user/{id}/contacts"
+			body: "*"
+		};
+	};
 	rpc GetUsers (UserGetRequest) returns (UserGetResponse) {
 		option (google.api.http) = {
 			get: "/v1/users"
@@ -59,6 +65,11 @@ service UserRegistry {
 	rpc GetUserByID (UserGetByIDRequest) returns (UserGetByIDResponse) {
 		option (google.api.http) = {
 			get: "/v1/user/{id}"
+		};
+	};
+	rpc GetUserByLogin (UserGetByLoginRequest) returns (UserGetByLoginResponse) {
+		option (google.api.http) = {
+			get: "/v1/user/{login}"
 		};
 	};
 }
@@ -76,6 +87,7 @@ message User {
 	Contacts contacts = 10;
 	double salary = 12;
 	bool is_piece_wage = 13;
+	string team = 14;
 }
 
 message Contacts {
@@ -103,12 +115,22 @@ message UserUpdateResponse {
 	int64 id = 1;
 }
 
+message UserContactsUpdateRequest {
+	int64 id = 1;
+	Contacts contacts = 2;
+}
+
+message UserContactsUpdateResponse {
+	int64 id = 1;
+}
+
 message UserGetRequest {
 	repeated int64 ids = 1;
 	repeated string names = 2;
 	repeated string last_names = 3;
 	repeated string display_names = 4;
 	repeated string emails = 5;
+	repeated string teams = 6;
 }
 
 message UserGetResponse {
@@ -120,5 +142,13 @@ message UserGetByIDRequest {
 }
 
 message UserGetByIDResponse {
+	User user = 1;
+}
+
+message UserGetByLoginRequest {
+	string login = 1;
+}
+
+message UserGetByLoginResponse {
 	User user = 1;
 }

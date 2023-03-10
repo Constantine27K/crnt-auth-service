@@ -92,7 +92,7 @@ func createGrpcServer() {
 	authorizer := authorization.NewAuthorizer(tokenMaker)
 
 	user.RegisterUserRegistryServer(grpcServer, userService.NewService(userStorage, secretStorage, validator, authorizer))
-	auth.RegisterAuthServer(grpcServer, authService.NewService(secretStorage, tokenMaker))
+	auth.RegisterAuthServer(grpcServer, authService.NewService(secretStorage, userStorage, tokenMaker))
 	log.Infof("grpc service started on port %s", port)
 
 	err = grpcServer.Serve(lis)

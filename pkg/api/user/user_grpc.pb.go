@@ -24,8 +24,10 @@ const _ = grpc.SupportPackageIsVersion7
 type UserRegistryClient interface {
 	CreateUser(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserCreateResponse, error)
 	UpdateUser(ctx context.Context, in *UserUpdateRequest, opts ...grpc.CallOption) (*UserUpdateResponse, error)
+	UpdateUserContacts(ctx context.Context, in *UserContactsUpdateRequest, opts ...grpc.CallOption) (*UserContactsUpdateResponse, error)
 	GetUsers(ctx context.Context, in *UserGetRequest, opts ...grpc.CallOption) (*UserGetResponse, error)
 	GetUserByID(ctx context.Context, in *UserGetByIDRequest, opts ...grpc.CallOption) (*UserGetByIDResponse, error)
+	GetUserByLogin(ctx context.Context, in *UserGetByLoginRequest, opts ...grpc.CallOption) (*UserGetByLoginResponse, error)
 }
 
 type userRegistryClient struct {
@@ -54,6 +56,15 @@ func (c *userRegistryClient) UpdateUser(ctx context.Context, in *UserUpdateReque
 	return out, nil
 }
 
+func (c *userRegistryClient) UpdateUserContacts(ctx context.Context, in *UserContactsUpdateRequest, opts ...grpc.CallOption) (*UserContactsUpdateResponse, error) {
+	out := new(UserContactsUpdateResponse)
+	err := c.cc.Invoke(ctx, "/github.constantine27k.crnt_auth_service.api.user.UserRegistry/UpdateUserContacts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userRegistryClient) GetUsers(ctx context.Context, in *UserGetRequest, opts ...grpc.CallOption) (*UserGetResponse, error) {
 	out := new(UserGetResponse)
 	err := c.cc.Invoke(ctx, "/github.constantine27k.crnt_auth_service.api.user.UserRegistry/GetUsers", in, out, opts...)
@@ -72,14 +83,25 @@ func (c *userRegistryClient) GetUserByID(ctx context.Context, in *UserGetByIDReq
 	return out, nil
 }
 
+func (c *userRegistryClient) GetUserByLogin(ctx context.Context, in *UserGetByLoginRequest, opts ...grpc.CallOption) (*UserGetByLoginResponse, error) {
+	out := new(UserGetByLoginResponse)
+	err := c.cc.Invoke(ctx, "/github.constantine27k.crnt_auth_service.api.user.UserRegistry/GetUserByLogin", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserRegistryServer is the server API for UserRegistry service.
 // All implementations should embed UnimplementedUserRegistryServer
 // for forward compatibility
 type UserRegistryServer interface {
 	CreateUser(context.Context, *UserCreateRequest) (*UserCreateResponse, error)
 	UpdateUser(context.Context, *UserUpdateRequest) (*UserUpdateResponse, error)
+	UpdateUserContacts(context.Context, *UserContactsUpdateRequest) (*UserContactsUpdateResponse, error)
 	GetUsers(context.Context, *UserGetRequest) (*UserGetResponse, error)
 	GetUserByID(context.Context, *UserGetByIDRequest) (*UserGetByIDResponse, error)
+	GetUserByLogin(context.Context, *UserGetByLoginRequest) (*UserGetByLoginResponse, error)
 }
 
 // UnimplementedUserRegistryServer should be embedded to have forward compatible implementations.
@@ -92,11 +114,17 @@ func (UnimplementedUserRegistryServer) CreateUser(context.Context, *UserCreateRe
 func (UnimplementedUserRegistryServer) UpdateUser(context.Context, *UserUpdateRequest) (*UserUpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
+func (UnimplementedUserRegistryServer) UpdateUserContacts(context.Context, *UserContactsUpdateRequest) (*UserContactsUpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserContacts not implemented")
+}
 func (UnimplementedUserRegistryServer) GetUsers(context.Context, *UserGetRequest) (*UserGetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
 func (UnimplementedUserRegistryServer) GetUserByID(context.Context, *UserGetByIDRequest) (*UserGetByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByID not implemented")
+}
+func (UnimplementedUserRegistryServer) GetUserByLogin(context.Context, *UserGetByLoginRequest) (*UserGetByLoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserByLogin not implemented")
 }
 
 // UnsafeUserRegistryServer may be embedded to opt out of forward compatibility for this service.
@@ -146,6 +174,24 @@ func _UserRegistry_UpdateUser_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserRegistry_UpdateUserContacts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserContactsUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserRegistryServer).UpdateUserContacts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.constantine27k.crnt_auth_service.api.user.UserRegistry/UpdateUserContacts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserRegistryServer).UpdateUserContacts(ctx, req.(*UserContactsUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserRegistry_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserGetRequest)
 	if err := dec(in); err != nil {
@@ -182,6 +228,24 @@ func _UserRegistry_GetUserByID_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserRegistry_GetUserByLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserGetByLoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserRegistryServer).GetUserByLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.constantine27k.crnt_auth_service.api.user.UserRegistry/GetUserByLogin",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserRegistryServer).GetUserByLogin(ctx, req.(*UserGetByLoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserRegistry_ServiceDesc is the grpc.ServiceDesc for UserRegistry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -198,12 +262,20 @@ var UserRegistry_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserRegistry_UpdateUser_Handler,
 		},
 		{
+			MethodName: "UpdateUserContacts",
+			Handler:    _UserRegistry_UpdateUserContacts_Handler,
+		},
+		{
 			MethodName: "GetUsers",
 			Handler:    _UserRegistry_GetUsers_Handler,
 		},
 		{
 			MethodName: "GetUserByID",
 			Handler:    _UserRegistry_GetUserByID_Handler,
+		},
+		{
+			MethodName: "GetUserByLogin",
+			Handler:    _UserRegistry_GetUserByLogin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

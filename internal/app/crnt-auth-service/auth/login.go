@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -21,17 +22,17 @@ const (
 )
 
 func (i *Implementation) Login(ctx context.Context, req *desc.LoginRequest) (*desc.LoginResponse, error) {
-	reqSecret := req.GetSecret()
-	if reqSecret == nil {
+	request := req.GetSecret()
+	if request == nil {
 		log.Error("secret is empty")
-		return nil, status.Error(codes.InvalidArgument, "reqSecret is empty")
+		return nil, status.Error(codes.InvalidArgument, "request is empty")
 	}
 
-	secret, err := i.secretStorage.GetByLogin(reqSecret.GetLogin())
+	secret, err := i.secretStorage.GetByLogin(request.GetLogin())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Error("no such user",
-				zap.String("login", reqSecret.GetLogin()),
+				zap.String("login", request.GetLogin()),
 			)
 			return nil, status.Error(codes.InvalidArgument, "no such user")
 		}
@@ -41,7 +42,21 @@ func (i *Implementation) Login(ctx context.Context, req *desc.LoginRequest) (*de
 		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(secret.GetPassword()), []byte(reqSecret.GetPassword()))
+	user, err := i.userStorage.GetByLogin(request.GetLogin())
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Error("no such user",
+				zap.String("login", request.GetLogin()),
+			)
+			return nil, status.Error(codes.InvalidArgument, "no such user")
+		}
+		log.Error("cannot get user by display name",
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(secret.GetPassword()), []byte(request.GetPassword()))
 	if err != nil {
 		log.Error("password is incorrect")
 		return nil, status.Error(codes.InvalidArgument, "password is incorrect")
@@ -55,7 +70,7 @@ func (i *Implementation) Login(ctx context.Context, req *desc.LoginRequest) (*de
 		return nil, err
 	}
 
-	tokenValue, err := i.tokenMaker.CreateToken(secret.GetLogin(), secret.GetRole(), time.Duration(duration)*time.Hour)
+	tokenValue, err := i.tokenMaker.CreateToken(secret.GetLogin(), secret.GetRole(), user.GetTeam(), time.Duration(duration)*time.Hour)
 	if err != nil {
 		log.Error("failed to generate token",
 			zap.Error(err),
@@ -63,7 +78,7 @@ func (i *Implementation) Login(ctx context.Context, req *desc.LoginRequest) (*de
 		return nil, err
 	}
 
-	accessToken := authType + " " + tokenValue
+	accessToken := fmt.Sprintf("%s %s", authType, tokenValue)
 
 	return &desc.LoginResponse{AccessToken: accessToken}, nil
 }
