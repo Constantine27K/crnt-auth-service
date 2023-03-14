@@ -19,6 +19,36 @@
     "application/json"
   ],
   "paths": {
+    "/v1/auth/{entity}": {
+      "post": {
+        "operationId": "Auth_Authorize",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/authAuthResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/v1/login": {
       "post": {
         "operationId": "Auth_Login",
@@ -53,6 +83,20 @@
     }
   },
   "definitions": {
+    "authAuthResponse": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "team": {
+          "type": "string"
+        }
+      }
+    },
     "authLoginRequest": {
       "type": "object",
       "properties": {
