@@ -25,6 +25,11 @@ service Auth {
 			body: "*"
 		};
 	};
+	rpc Authorize (AuthRequest) returns (AuthResponse) {
+		option (google.api.http) = {
+			post: "/v1/auth/{entity}"
+		};
+	};
 }
 
 message Secret {
@@ -40,4 +45,15 @@ message LoginRequest {
 
 message LoginResponse {
 	string access_token = 1;
+}
+
+message AuthRequest {
+	// user or admin
+	string entity = 1;
+}
+
+message AuthResponse {
+	string username = 1;
+	string role = 2;
+	string team = 3;
 }
