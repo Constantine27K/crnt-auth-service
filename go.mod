@@ -12,6 +12,7 @@ require (
 	github.com/o1egl/paseto v1.0.0
 	github.com/sirupsen/logrus v1.9.0
 	go.uber.org/zap v1.24.0
+	golang.org/x/crypto v0.0.0-20181025213731-e84da0312774
 	google.golang.org/genproto v0.0.0-20230223222841-637eb2293923
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.1
@@ -26,7 +27,6 @@ require (
 	github.com/pkg/errors v0.8.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/crypto v0.0.0-20181025213731-e84da0312774 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
