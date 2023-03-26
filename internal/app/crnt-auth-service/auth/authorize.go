@@ -2,11 +2,11 @@ package auth
 
 import (
 	"context"
-	log "github.com/sirupsen/logrus"
-	"go.uber.org/zap"
 
 	"github.com/Constantine27K/crnt-auth-service/internal/pkg/token"
 	desc "github.com/Constantine27K/crnt-auth-service/pkg/api/auth"
+	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
