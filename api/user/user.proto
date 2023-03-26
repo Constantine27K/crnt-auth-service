@@ -87,7 +87,8 @@ message User {
 	Contacts contacts = 10;
 	double salary = 12;
 	bool is_piece_wage = 13;
-	string team = 14;
+	int64 team = 14;
+	int64 department = 15;
 }
 
 message Contacts {
@@ -130,7 +131,8 @@ message UserGetRequest {
 	repeated string last_names = 3;
 	repeated string display_names = 4;
 	repeated string emails = 5;
-	repeated string teams = 6;
+	repeated int64 teams = 6;
+	repeated int64 departments = 7;
 }
 
 message UserGetResponse {

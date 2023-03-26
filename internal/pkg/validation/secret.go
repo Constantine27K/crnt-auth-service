@@ -12,9 +12,9 @@ const (
 
 var (
 	availableRoles = map[string]struct{}{
-		"admin":     {},
-		"team_lead": {},
-		"employee":  {},
+		"admin":    {},
+		"lead":     {},
+		"employee": {},
 	}
 )
 

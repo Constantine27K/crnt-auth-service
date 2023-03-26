@@ -55,5 +55,5 @@ message AuthRequest {
 message AuthResponse {
 	string username = 1;
 	string role = 2;
-	string team = 3;
+	int64 team = 3;
 }

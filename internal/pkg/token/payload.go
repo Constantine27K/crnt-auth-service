@@ -18,12 +18,12 @@ type Payload struct {
 	ID        uuid.UUID `json:"id,omitempty"`
 	Username  string    `json:"username,omitempty"`
 	Role      string    `json:"role,omitempty"`
-	Team      string    `json:"team,omitempty"`
+	Team      int64     `json:"team,omitempty"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
-func NewPayload(username, role, team string, duration time.Duration) (*Payload, error) {
+func NewPayload(username, role string, team int64, duration time.Duration) (*Payload, error) {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		log.Error("failed to create token id",

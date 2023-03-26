@@ -15,7 +15,8 @@ create table if not exists users
     salary        double precision   default 0,
     is_piece_wage boolean   not null default false,
     secrets_id    bigserial not null,
-    team          text      not null default ''
+    team          bigserial not null,
+    department    bigserial not null
 );
 -- +goose StatementEnd
 -- +goose StatementBegin

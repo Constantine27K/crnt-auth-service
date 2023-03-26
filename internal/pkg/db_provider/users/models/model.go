@@ -18,5 +18,6 @@ type UserRow struct {
 	DiscordUrl  string    `db:"discord_url"`
 	Salary      float64   `db:"salary"`
 	IsPieceWage bool      `db:"is_piece_wage"`
-	Team        string    `db:"team"`
+	Team        int64     `db:"team"`
+	Department  int64     `db:"department"`
 }

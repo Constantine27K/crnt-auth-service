@@ -39,6 +39,7 @@
         "parameters": [
           {
             "name": "entity",
+            "description": "user or admin",
             "in": "path",
             "required": true,
             "type": "string"
@@ -93,7 +94,8 @@
           "type": "string"
         },
         "team": {
-          "type": "string"
+          "type": "string",
+          "format": "int64"
         }
       }
     },
