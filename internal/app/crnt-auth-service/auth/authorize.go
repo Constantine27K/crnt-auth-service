@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 
 	"github.com/Constantine27K/crnt-auth-service/internal/pkg/token"
 	desc "github.com/Constantine27K/crnt-auth-service/pkg/api/auth"
@@ -23,7 +25,10 @@ func (i *Implementation) Authorize(ctx context.Context, req *desc.AuthRequest) (
 	}
 
 	if err != nil {
-		return nil, err
+		log.Error("error while authorizing user",
+			zap.Any("entity", req.GetEntity()),
+			zap.Error(err))
+		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
 
 	return &desc.AuthResponse{Username: payload.Username, Role: payload.Role, Team: payload.Team}, nil

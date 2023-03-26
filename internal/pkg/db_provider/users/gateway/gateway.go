@@ -41,7 +41,7 @@ const (
 var (
 	columnsUsers = []string{"id", "name", "last_name", "display_name", "birthday",
 		"employed_at", "fired_at", "about_info", "avatar_url", "contacts_id",
-		"salary", "is_piece_wage", "secrets_id", "team"}
+		"salary", "is_piece_wage", "team", "department", "secrets_id"}
 
 	columnsContacts = []string{"id", "phone_number", "email", "telegram_url", "discord_url"}
 )
@@ -75,7 +75,7 @@ func (g *gateway) Add(user *models.UserRow, secretID int64) (int64, error) {
 
 	values = []interface{}{
 		user.Name, user.LastName, user.DisplayName, user.Birthday, user.EmployedAt, user.FiredAt,
-		user.AboutInfo, user.AvatarUrl, idContact, user.Salary, user.IsPieceWage, secretID, user.Team,
+		user.AboutInfo, user.AvatarUrl, idContact, user.Salary, user.IsPieceWage, user.Team, user.Department, secretID,
 	}
 
 	query, args, err = g.builder.Insert(tableUsers).
@@ -129,7 +129,7 @@ func (g *gateway) Get(filter *models.UsersFilter) ([]*models.UserRow, error) {
 		return nil, err
 	}
 
-	contactRows, err := g.db.Query(stmt, args...)
+	userRows, err := g.db.Query(stmt, args...)
 	if err != nil {
 		log.Error("Gateway.Get query error",
 			zap.Any("filter", filter),
@@ -137,12 +137,12 @@ func (g *gateway) Get(filter *models.UsersFilter) ([]*models.UserRow, error) {
 		)
 		return nil, err
 	}
-	defer contactRows.Close()
+	defer userRows.Close()
 
-	for contactRows.Next() {
+	for userRows.Next() {
 		var userRow models.UserRow
 		var contact int64
-		err = contactRows.Scan(
+		err = userRows.Scan(
 			&userRow.ID,
 			&userRow.Name,
 			&userRow.LastName,
@@ -156,6 +156,7 @@ func (g *gateway) Get(filter *models.UsersFilter) ([]*models.UserRow, error) {
 			&userRow.Salary,
 			&userRow.IsPieceWage,
 			&userRow.Team,
+			&userRow.Department,
 		)
 		if err != nil {
 			log.Error("Gateway.Get scan error",
@@ -168,7 +169,7 @@ func (g *gateway) Get(filter *models.UsersFilter) ([]*models.UserRow, error) {
 		contacts = append(contacts, contact)
 	}
 
-	if err = contactRows.Err(); err != nil {
+	if err = userRows.Err(); err != nil {
 		return nil, err
 	}
 
@@ -185,7 +186,7 @@ func (g *gateway) Get(filter *models.UsersFilter) ([]*models.UserRow, error) {
 		return nil, err
 	}
 
-	contactRows, err = g.db.Query(stmt, args...)
+	contactRows, err := g.db.Query(stmt, args...)
 	if err != nil {
 		log.Error("Gateway.Get query error",
 			zap.Any("filter", filter),
@@ -250,6 +251,7 @@ func (g *gateway) GetByID(id int64) (*models.UserRow, error) {
 		&userRow.Salary,
 		&userRow.IsPieceWage,
 		&userRow.Team,
+		&userRow.Department,
 	)
 	if err != nil {
 		log.Error("Gateway.GetByID query error",
@@ -296,7 +298,7 @@ func (g *gateway) GetByLogin(login string) (*models.UserRow, error) {
 
 	stmt, args, err := query.ToSql()
 	if err != nil {
-		log.Error("Gateway.GetByID query error",
+		log.Error("Gateway.GetByLogin query error",
 			zap.Any("display_name", login),
 			zap.Error(err),
 		)
@@ -319,9 +321,10 @@ func (g *gateway) GetByLogin(login string) (*models.UserRow, error) {
 		&userRow.Salary,
 		&userRow.IsPieceWage,
 		&userRow.Team,
+		&userRow.Department,
 	)
 	if err != nil {
-		log.Error("Gateway.GetByID query error",
+		log.Error("Gateway.GetByLogin query error",
 			zap.Any("display_name", login),
 			zap.Error(err),
 		)
@@ -334,7 +337,7 @@ func (g *gateway) GetByLogin(login string) (*models.UserRow, error) {
 
 	stmt, args, err = query.ToSql()
 	if err != nil {
-		log.Error("Gateway.GetByID query error",
+		log.Error("Gateway.GetByLogin query error",
 			zap.Any("display_name", login),
 			zap.Error(err),
 		)
@@ -398,7 +401,11 @@ func (g *gateway) Update(user *models.UserRow) (int64, error) {
 		query = query.Set("salary", user.Salary)
 	}
 
-	if len(user.Team) > 0 {
+	if user.Team != 0 {
+		query = query.Set("team", user.Team)
+	}
+
+	if user.Department != 0 {
 		query = query.Set("team", user.Team)
 	}
 

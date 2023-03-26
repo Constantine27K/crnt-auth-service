@@ -40,6 +40,7 @@ func (s *storage) Add(user *desc.User, secretID int64) (int64, error) {
 		Salary:      user.GetSalary(),
 		IsPieceWage: user.GetIsPieceWage(),
 		Team:        user.GetTeam(),
+		Department:  user.GetDepartment(),
 	}
 
 	contacts := user.GetContacts()
@@ -81,6 +82,7 @@ func (s *storage) Get(filter *models.UsersFilter) ([]*desc.User, error) {
 			Salary:      row.Salary,
 			IsPieceWage: row.IsPieceWage,
 			Team:        row.Team,
+			Department:  row.Department,
 		})
 	}
 
@@ -112,6 +114,7 @@ func (s *storage) GetByID(id int64) (*desc.User, error) {
 		Salary:      row.Salary,
 		IsPieceWage: row.IsPieceWage,
 		Team:        row.Team,
+		Department:  row.Department,
 	}, nil
 }
 
@@ -140,6 +143,7 @@ func (s *storage) GetByLogin(login string) (*desc.User, error) {
 		Salary:      row.Salary,
 		IsPieceWage: row.IsPieceWage,
 		Team:        row.Team,
+		Department:  row.Department,
 	}, nil
 }
 
@@ -157,6 +161,7 @@ func (s *storage) Update(id int64, user *desc.User) (int64, error) {
 		Salary:      user.GetSalary(),
 		IsPieceWage: user.GetIsPieceWage(),
 		Team:        user.GetTeam(),
+		Department:  user.GetDepartment(),
 	}
 
 	contacts := user.GetContacts()
