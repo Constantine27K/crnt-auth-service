@@ -25,9 +25,10 @@ service Auth {
 			body: "*"
 		};
 	};
-	rpc Authorize (AuthRequest) returns (AuthResponse) {
+	rpc SignUp (SignUpRequest) returns (SignUpResponse) {
 		option (google.api.http) = {
-			post: "/v1/auth/{entity}"
+			post: "/v1/sign_up"
+			body: "*"
 		};
 	};
 }
@@ -47,13 +48,10 @@ message LoginResponse {
 	string access_token = 1;
 }
 
-message AuthRequest {
-	// user or admin
-	string entity = 1;
+message SignUpRequest {
+	Secret secret = 1;
 }
 
-message AuthResponse {
-	string username = 1;
-	string role = 2;
-	int64 team = 3;
+message SignUpResponse {
+	int64 id = 1;
 }

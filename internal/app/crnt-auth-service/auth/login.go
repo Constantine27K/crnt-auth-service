@@ -42,19 +42,19 @@ func (i *Implementation) Login(ctx context.Context, req *desc.LoginRequest) (*de
 		return nil, err
 	}
 
-	user, err := i.userStorage.GetByLogin(request.GetLogin())
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			log.Error("no such user",
-				zap.String("login", request.GetLogin()),
-			)
-			return nil, status.Error(codes.InvalidArgument, "no such user")
-		}
-		log.Error("cannot get user by display name",
-			zap.Error(err),
-		)
-		return nil, err
-	}
+	// user, err := i.userStorage.GetByLogin(request.GetLogin())
+	// if err != nil {
+	//	if errors.Is(err, sql.ErrNoRows) {
+	//		log.Error("no such user",
+	//			zap.String("login", request.GetLogin()),
+	//		)
+	//		return nil, status.Error(codes.InvalidArgument, "no such user")
+	//	}
+	//	log.Error("cannot get user by display name",
+	//		zap.Error(err),
+	//	)
+	//	return nil, err
+	// }
 
 	err = bcrypt.CompareHashAndPassword([]byte(secret.GetPassword()), []byte(request.GetPassword()))
 	if err != nil {
@@ -70,7 +70,8 @@ func (i *Implementation) Login(ctx context.Context, req *desc.LoginRequest) (*de
 		return nil, err
 	}
 
-	tokenValue, err := i.tokenMaker.CreateToken(secret.GetLogin(), secret.GetRole(), user.GetTeam(), time.Duration(duration)*time.Hour)
+	// TODO change team
+	tokenValue, err := i.tokenMaker.CreateToken(secret.GetLogin(), secret.GetRole(), 0, time.Duration(duration)*time.Hour)
 	if err != nil {
 		log.Error("failed to generate token",
 			zap.Error(err),
