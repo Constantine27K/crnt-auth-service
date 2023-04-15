@@ -9,17 +9,13 @@ import (
 	"strconv"
 
 	authService "github.com/Constantine27K/crnt-auth-service/internal/app/crnt-auth-service/auth"
-	userService "github.com/Constantine27K/crnt-auth-service/internal/app/crnt-auth-service/user"
-	"github.com/Constantine27K/crnt-auth-service/internal/pkg/authorization"
 	secretsGateway "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/secrets/gateway"
 	secretsStorage "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/secrets/storage"
-	usersGateway "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/users/gateway"
-	usersStorage "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/users/storage"
 	"github.com/Constantine27K/crnt-auth-service/internal/pkg/infrastructure/postgres"
-	"github.com/Constantine27K/crnt-auth-service/internal/pkg/token"
-	"github.com/Constantine27K/crnt-auth-service/internal/pkg/validation"
 	"github.com/Constantine27K/crnt-auth-service/pkg/api/auth"
 	"github.com/Constantine27K/crnt-auth-service/pkg/api/user"
+	"github.com/Constantine27K/crnt-sdk/pkg/authorization"
+	"github.com/Constantine27K/crnt-sdk/pkg/token"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
@@ -77,9 +73,6 @@ func createGrpcServer() {
 		log.Fatalf("failed to connect to postgres: %v", err)
 	}
 
-	usersGw := usersGateway.NewUsersGateway(db)
-	userStorage := usersStorage.NewUserStorage(usersGw)
-
 	secretGw := secretsGateway.NewSecretsGateway(db)
 	secretStorage := secretsStorage.NewSecretStorage(secretGw)
 
@@ -88,11 +81,10 @@ func createGrpcServer() {
 		log.Fatalf("failed to create token maker: %v", err)
 	}
 
-	validator := validation.NewValidator()
+	// validator := validation.NewValidator()
 	authorizer := authorization.NewAuthorizer(tokenMaker)
 
-	user.RegisterUserRegistryServer(grpcServer, userService.NewService(userStorage, secretStorage, validator, authorizer))
-	auth.RegisterAuthServer(grpcServer, authService.NewService(secretStorage, userStorage, tokenMaker, authorizer))
+	auth.RegisterAuthServer(grpcServer, authService.NewService(secretStorage, tokenMaker, authorizer))
 	log.Infof("grpc service started on port %s", port)
 
 	err = grpcServer.Serve(lis)
@@ -122,15 +114,15 @@ func createHttpServer() {
 	// create an HTTP router using the client connection above
 	// and register it with the service client
 	rmux := runtime.NewServeMux()
-	clientIssue := user.NewUserRegistryClient(conn)
-	err = user.RegisterUserRegistryHandlerClient(ctx, rmux, clientIssue)
+	clientUser := user.NewUserRegistryClient(conn)
+	err = user.RegisterUserRegistryHandlerClient(ctx, rmux, clientUser)
 	if err != nil {
 		log.Error("failed to register user handler client",
 			zap.Error(err),
 		)
 	}
-	clientEpic := auth.NewAuthClient(conn)
-	err = auth.RegisterAuthHandlerClient(ctx, rmux, clientEpic)
+	clientAuth := auth.NewAuthClient(conn)
+	err = auth.RegisterAuthHandlerClient(ctx, rmux, clientAuth)
 	if err != nil {
 		log.Error("failed to register auth handler client",
 			zap.Error(err),

@@ -19,37 +19,6 @@
     "application/json"
   ],
   "paths": {
-    "/v1/auth/{entity}": {
-      "post": {
-        "operationId": "Auth_Authorize",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/authAuthResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "entity",
-            "description": "user or admin",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "Auth"
-        ]
-      }
-    },
     "/v1/login": {
       "post": {
         "operationId": "Auth_Login",
@@ -81,24 +50,41 @@
           "Auth"
         ]
       }
+    },
+    "/v1/sign_up": {
+      "post": {
+        "operationId": "Auth_SignUp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/authSignUpResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/authSignUpRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
     }
   },
   "definitions": {
-    "authAuthResponse": {
-      "type": "object",
-      "properties": {
-        "username": {
-          "type": "string"
-        },
-        "role": {
-          "type": "string"
-        },
-        "team": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
-    },
     "authLoginRequest": {
       "type": "object",
       "properties": {
@@ -127,6 +113,23 @@
         },
         "role": {
           "type": "string"
+        }
+      }
+    },
+    "authSignUpRequest": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "$ref": "#/definitions/authSecret"
+        }
+      }
+    },
+    "authSignUpResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
