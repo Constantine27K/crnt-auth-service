@@ -12,8 +12,9 @@ import (
 	secretsGateway "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/secrets/gateway"
 	secretsStorage "github.com/Constantine27K/crnt-auth-service/internal/pkg/db_provider/secrets/storage"
 	"github.com/Constantine27K/crnt-auth-service/internal/pkg/infrastructure/postgres"
+	userService "github.com/Constantine27K/crnt-auth-service/internal/pkg/services/crnt-user-service"
+	"github.com/Constantine27K/crnt-auth-service/internal/pkg/validation"
 	"github.com/Constantine27K/crnt-auth-service/pkg/api/auth"
-	"github.com/Constantine27K/crnt-auth-service/pkg/api/user"
 	"github.com/Constantine27K/crnt-sdk/pkg/authorization"
 	"github.com/Constantine27K/crnt-sdk/pkg/token"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -81,10 +82,19 @@ func createGrpcServer() {
 		log.Fatalf("failed to create token maker: %v", err)
 	}
 
-	// validator := validation.NewValidator()
+	validator := validation.NewValidator()
 	authorizer := authorization.NewAuthorizer(tokenMaker)
 
-	auth.RegisterAuthServer(grpcServer, authService.NewService(secretStorage, tokenMaker, authorizer))
+	connUserService, err := grpc.Dial(
+		os.Getenv("USER_SERVICE_ADDRESS"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatalf("cannot dial user-service: %v", err)
+	}
+	userServ := userService.NewService(connUserService)
+
+	auth.RegisterAuthServer(grpcServer, authService.NewService(secretStorage, userServ, tokenMaker, authorizer, validator))
 	log.Infof("grpc service started on port %s", port)
 
 	err = grpcServer.Serve(lis)
@@ -114,8 +124,6 @@ func createHttpServer() {
 	// create an HTTP router using the client connection above
 	// and register it with the service client
 	rmux := runtime.NewServeMux()
-	clientUser := user.NewUserRegistryClient(conn)
-	err = user.RegisterUserRegistryHandlerClient(ctx, rmux, clientUser)
 	if err != nil {
 		log.Error("failed to register user handler client",
 			zap.Error(err),
