@@ -2,6 +2,7 @@ package validation
 
 import (
 	"fmt"
+
 	desc "github.com/Constantine27K/crnt-auth-service/pkg/api/auth"
 )
 
