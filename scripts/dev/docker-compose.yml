@@ -9,7 +9,9 @@ services:
       - POSTGRESQL_PORT_NUMBER=5433
     ports:
       - "5433:5433"
-
+    networks:
+      - crnt-4
+      
   pg-up-checker:
     image: oliosinter/ansible-probe:1.0.0
     environment:
@@ -17,3 +19,9 @@ services:
       PROBE_PORT: 5433
       PROBE_TIMEOUT: 20
     command: [ "probe.yml" ]
+    networks:
+      - crnt-4
+
+networks:
+  crnt-4:
+    external: true
